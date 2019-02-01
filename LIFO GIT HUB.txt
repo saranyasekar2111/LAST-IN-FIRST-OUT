@@ -1,0 +1,104 @@
+DESIGN CODE
+module Lifo(dataout,full,empty,clk,rst,rd,wr,datain);
+  input[7:0]datain;
+  input clk,rst,rd,wr;
+  output reg[7:0]dataout;
+  output full,empty;
+  reg[7:0]mem[7:0];
+  reg[3:0]pt;
+  assign full=(pt==4'b1000)?1:0;
+  assign empty=(pt==4'b0000)?1:0;
+  always@(posedge clk)
+    begin
+      if(rst)
+        begin
+          mem[0]<=0;mem[1]<=0;mem[2]<=0;mem[3]<=0;mem[4]<=0;mem[5]<=0;mem[6]<=0;mem[7]<=0;
+          dataout<=0;pt<=1;
+        end
+      else if(wr&!full)
+        begin
+          mem[pt]<=datain;
+          pt<=pt+1;
+        end
+      else if(rd&!empty)
+        begin
+          pt<=pt-1;
+          dataout<=mem[pt];
+        end
+    end
+endmodule
+   TEST BENCH CODE       
+   module Lifo_test;
+reg clk,rst,rd,wr;
+  reg[7:0]datain;
+  wire[7:0]dataout;
+  wire full,empty;
+          Lifo dut(dataout,full,empty,clk,rst,rd,wr,datain);
+   initial
+    begin 
+      $dumpfile("dump.vcd");
+      $dumpvars(1);
+    end
+          initial
+            begin
+              clk=0;datain=8'b00000000;rst=1;clk=1;#5;clk=0;#5;rst=0;
+              $display("start testing");
+              wr=1;rd=0;
+              datain=8'b00000001;
+              clk=1;#5;clk=0;#5;
+          wr=1;rd=0;
+              datain=8'b00000010;
+              clk=1;#5;clk=0;#5;
+          wr=1;rd=0;
+              datain=8'b00000011;
+              clk=1;#5;clk=0;#5;
+          wr=1;rd=0;
+              datain=8'b00000100;
+              clk=1;#5;clk=0;#5;
+          wr=1;rd=0;
+              datain=8'b00000101;
+              clk=1;#5;clk=0;#5;
+          wr=1;rd=0;
+              datain=8'b00000110;
+              clk=1;#5;clk=0;#5;
+          wr=1;rd=0;
+              datain=8'b00000111;
+              clk=1;#5;clk=0;#5;
+              wr=0;rd=1;
+              clk=1;#5;clk=0;#5;
+               clk=1;#5;clk=0;#5;
+              if(dataout===8'b00000111)
+                $display("pass%p",dataout);
+                         else
+                           $display("fail%p",dataout);
+              if(dataout===8'b00000110)
+                $display("pass%p",dataout);
+                         else
+                           $display("fail%p",dataout);
+              if(dataout===8'b00000101)
+                $display("pass%p",dataout);
+                         else
+                           $display("fail%p",dataout);
+              if(dataout===8'b00000100)
+                $display("pass%p",dataout);
+                         else
+                           $display("fail%p",dataout);
+              if(dataout===8'b00000011)
+                $display("pass%p",dataout);
+                         else
+                           $display("fail%p",dataout);
+              if(dataout===8'b00000010)
+                $display("pass%p",dataout);
+                         else
+                           $display("fail%p",dataout);
+              if(dataout===8'b00000001)
+                $display("pass%p",dataout);
+                         else
+                           $display("fail%p",dataout);
+              clk=1;#5;clk=0;#5;
+              if (empty==1)
+                $display("pass%p",empty);
+              else
+                $display("fail%p",empty);
+            end
+        endmodule
